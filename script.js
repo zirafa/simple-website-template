@@ -1,4 +1,3 @@
-// Wait for the document to load before running the script 
 (function ($) {
   
   // We use some Javascript and the URL #fragment to hide/show different parts of the page
@@ -18,12 +17,6 @@
     
     // Highlight the menu link associated with this region by adding the .active CSS class
     $('.main-menu a[href="'+ region +'"]').addClass('active'); 
-
-    // Alternate method: Use AJAX to load the contents of an external file into a div based on URL fragment
-    // This will extract the region name from URL hash, and then load [region].html into the main #content div
-    // var region = location.hash.toString() || '#first';
-    // $('#content').load(region.slice(1) + '.html')
-    
   });
-  
+
 })(jQuery);

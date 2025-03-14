@@ -11,7 +11,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet" type="text/css" />
     <link href="http://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css" />
     <link href="style.css" rel="stylesheet" type="text/css" />
-
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>    
   </head>
   
@@ -23,6 +22,7 @@
         <li><a href="#home">home</a></li>
         <li><a href="#about">about</a></li>
         <li><a href="#videos">videos</a></li>
+        <li><a href="#gifs">gifs</a></li>
         <li><a href="#contact">contact</a></li>
       </ul>                 
     </header>
@@ -30,6 +30,7 @@
     <div id="container">
       <div class="inner">
         <div id="content"> 
+          <!-- Home Section -->
           <div id="home" class="content-region hide">
             <h2>Home</h2>
             <p>
@@ -37,6 +38,7 @@
             </p>
           </div>
           
+          <!-- About Section -->
           <div id="about" class="content-region hide">
             <h2>About</h2>
             <p>
@@ -44,14 +46,25 @@
             </p>
           </div>
           
+          <!-- Videos Section -->
           <div id="videos" class="content-region hide">
             <h2>Videos</h2>
-            <input type="text" id="videoUrl" placeholder="Enter YouTube or Vimeo URL">
+            <input type="text" id="videoUrl" placeholder="Enter YouTube, Vimeo, or Zoom URL">
             <input type="text" id="videoText" placeholder="Enter description">
             <button onclick="embedVideo()">Add Video</button>
             <div id="videoEntries"></div>
           </div>
+
+          <!-- Gifs Section -->
+          <div id="gifs" class="content-region hide">
+            <h2>Gifs</h2>
+            <input type="text" id="gifUrl" placeholder="Enter GIF URL">
+            <input type="text" id="gifText" placeholder="Enter description">
+            <button onclick="embedGif()">Add GIF</button>
+            <div id="gifEntries"></div>
+          </div>
           
+          <!-- Contact Section -->
           <div id="contact" class="content-region hide">
             <h2>Contact</h2>
             <p>
@@ -68,83 +81,131 @@
     
     <script type="text/javascript" src="script.js"></script>
     <script>
-        const EDIT_CODE = "12345"; // Code to unlock edit functionality
+      const EDIT_CODE = "12345"; // Code to unlock edit functionality
 
-        // Function to add video entry
-        function embedVideo() {
-            let url = document.getElementById('videoUrl').value;
-            let text = document.getElementById('videoText').value;
-            let videoId;
-            let embedUrl;
-            
-            // Determine embed URL based on video source (YouTube or Vimeo)
-            if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                videoId = url.split('v=')[1] || url.split('youtu.be/')[1];
-                embedUrl = `https://www.youtube.com/embed/${videoId.split('&')[0]}`;
-            } else if (url.includes('vimeo.com')) {
-                videoId = url.split('/').pop();
-                embedUrl = `https://player.vimeo.com/video/${videoId}`;
-            } else {
-                alert('Invalid URL. Please enter a YouTube or Vimeo link.');
-                return;
-            }
-            
-            // Create a new video entry with an embed and description
-            let entry = document.createElement('div');
-            entry.classList.add('video-entry');
-            entry.innerHTML = `
-                <div class="edit-container">
-                    <button onclick="editVideo(this)" class="edit-button">Edit</button>
-                </div>
-                <div class="video-container">
-                    <iframe src="${embedUrl}" allowfullscreen></iframe>
-                </div>
-                <div class="text-container">
-                    <p>${text}</p>
-                </div>
-            `;
-            document.getElementById('videoEntries').appendChild(entry);
-        }
+      // Function to add video entry
+      function embedVideo() {
+          let url = document.getElementById('videoUrl').value;
+          let text = document.getElementById('videoText').value;
+          let videoId;
+          let embedUrl;
+          
+          // Determine embed URL based on video source (YouTube, Vimeo, Zoom)
+          if (url.includes('youtube.com') || url.includes('youtu.be')) {
+              videoId = url.split('v=')[1] || url.split('youtu.be/')[1];
+              embedUrl = `https://www.youtube.com/embed/${videoId.split('&')[0]}`;
+          } else if (url.includes('vimeo.com')) {
+              videoId = url.split('/').pop();
+              embedUrl = `https://player.vimeo.com/video/${videoId}`;
+          } else if (url.includes('zoom.us')) {
+              embedUrl = `<div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%;"><iframe src="${url}" frameborder="0" allowfullscreen="allowfullscreen" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0;"></iframe></div>`;
+          } else {
+              alert('Invalid URL. Please enter a YouTube, Vimeo, or Zoom link.');
+              return;
+          }
+          
+          // Create a new video entry with an embed and description
+          let entry = document.createElement('div');
+          entry.classList.add('video-entry');
+          entry.innerHTML = `
+              <div class="edit-container">
+                  <button onclick="editVideo(this)" class="edit-button">Edit</button>
+              </div>
+              <div class="video-container">
+                  ${embedUrl}
+              </div>
+              <div class="text-container">
+                  <p>${text}</p>
+              </div>
+          `;
+          document.getElementById('videoEntries').appendChild(entry);
+      }
 
-        // Function to edit or remove a video entry
-        function editVideo(button) {
-            let password = prompt("Enter the code to edit or delete this video:");
-            if (password === EDIT_CODE) {
-                let videoEntry = button.parentElement.parentElement;
+      // Function to add gif entry
+      function embedGif() {
+          let url = document.getElementById('gifUrl').value;
+          let text = document.getElementById('gifText').value;
 
-                // Ask the user whether to edit or remove the entry
-                let action = prompt("Enter 'edit' to edit or 'delete' to remove the video entry:");
-                if (action === "edit") {
-                    // Allow the user to edit the video URL and description
-                    let newUrl = prompt("Enter the new video URL:");
-                    let newText = prompt("Enter the new description:");
+          if (!url) {
+              alert('Please provide a valid GIF URL.');
+              return;
+          }
 
-                    // Update the video embed URL
-                    let newEmbedUrl;
-                    if (newUrl.includes('youtube.com') || newUrl.includes('youtu.be')) {
-                        let videoId = newUrl.split('v=')[1] || newUrl.split('youtu.be/')[1];
-                        newEmbedUrl = `https://www.youtube.com/embed/${videoId.split('&')[0]}`;
-                    } else if (newUrl.includes('vimeo.com')) {
-                        let videoId = newUrl.split('/').pop();
-                        newEmbedUrl = `https://player.vimeo.com/video/${videoId}`;
-                    } else {
-                        alert('Invalid URL. Please enter a YouTube or Vimeo link.');
-                        return;
-                    }
+          let entry = document.createElement('div');
+          entry.classList.add('gif-entry');
+          entry.innerHTML = `
+              <div class="edit-container">
+                  <button onclick="editGif(this)" class="edit-button">Edit</button>
+              </div>
+              <div class="gif-container">
+                  <a href="${url}"><img src="${url}" style="max-width: 300px; border-radius: 10px;"></a>
+              </div>
+              <div class="text-container">
+                  <p>${text}</p>
+              </div>
+          `;
+          document.getElementById('gifEntries').appendChild(entry);
+      }
 
-                    // Update the iframe and text in the video entry
-                    videoEntry.querySelector('iframe').src = newEmbedUrl;
-                    videoEntry.querySelector('.text-container p').textContent = newText;
-                } else if (action === "delete") {
-                    // Remove the video entry
-                    videoEntry.remove();
-                } else {
-                    alert("Invalid action. Please enter 'edit' or 'delete'.");
-                }
-            } else {
-                alert("Incorrect code. Access denied.");
-            }
-        }
+      // Function to edit or remove a video entry
+      function editVideo(button) {
+          let password = prompt("Enter the code to edit or delete this video:");
+          if (password === EDIT_CODE) {
+              let videoEntry = button.parentElement.parentElement;
+
+              let action = prompt("Enter 'edit' to edit or 'delete' to remove the video entry:");
+              if (action === "edit") {
+                  let newUrl = prompt("Enter the new video URL:");
+                  let newText = prompt("Enter the new description:");
+
+                  let newEmbedUrl;
+                  if (newUrl.includes('youtube.com') || newUrl.includes('youtu.be')) {
+                      let videoId = newUrl.split('v=')[1] || newUrl.split('youtu.be/')[1];
+                      newEmbedUrl = `https://www.youtube.com/embed/${videoId.split('&')[0]}`;
+                  } else if (newUrl.includes('vimeo.com')) {
+                      let videoId = newUrl.split('/').pop();
+                      newEmbedUrl = `https://player.vimeo.com/video/${videoId}`;
+                  } else if (newUrl.includes('zoom.us')) {
+                      newEmbedUrl = `<div style="position: relative; width: 100%; height: 0; padding-bottom: 56.25%;"><iframe src="${newUrl}" frameborder="0" allowfullscreen="allowfullscreen" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0;"></iframe></div>`;
+                  } else {
+                      alert('Invalid URL. Please enter a YouTube, Vimeo, or Zoom link.');
+                      return;
+                  }
+
+                  videoEntry.querySelector('.video-container').innerHTML = newEmbedUrl;
+                  videoEntry.querySelector('.text-container p').textContent = newText;
+              } else if (action === "delete") {
+                  videoEntry.remove();
+              } else {
+                  alert("Invalid action. Please enter 'edit' or 'delete'.");
+              }
+          } else {
+              alert("Incorrect code. Access denied.");
+          }
+      }
+
+      // Function to edit or remove a gif entry
+      function editGif(button) {
+          let password = prompt("Enter the code to edit or delete this GIF:");
+          if (password === EDIT_CODE) {
+              let gifEntry = button.parentElement.parentElement;
+
+              let action = prompt("Enter 'edit' to edit or 'delete' to remove the gif entry:");
+              if (action === "edit") {
+                  let newUrl = prompt("Enter the new GIF URL:");
+                  let newText = prompt("Enter the new description:");
+
+                  gifEntry.querySelector('.gif-container img').src = newUrl;
+                  gifEntry.querySelector('.text-container p').textContent = newText;
+              } else if (action === "delete") {
+                  gifEntry.remove();
+              } else {
+                  alert("Invalid action. Please enter 'edit' or 'delete'.");
+              }
+          } else {
+              alert("Incorrect code. Access denied.");
+          }
+      }
     </script>
   </body>
 </html>

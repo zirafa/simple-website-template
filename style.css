@@ -39,6 +39,7 @@ h3,
 h4,
 h5,
 h6 {
+  color: yellow;
   line-height: 1;
   text-rendering: optimizeLegibility; /*  voodoo to enable ligatures and kerning | https://developer.mozilla.org/en-US/docs/CSS/text-rendering */
   margin-top: 0;
